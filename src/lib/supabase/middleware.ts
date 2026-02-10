@@ -40,7 +40,7 @@ export async function updateSession(request: NextRequest) {
     // Define protected routes
     const isAuthRoute = request.nextUrl.pathname.startsWith("/(auth)") ||
         request.nextUrl.pathname === "/login" ||
-        request.nextUrl.pathname === "/registro" ||
+        request.nextUrl.pathname === "/register" ||
         request.nextUrl.pathname === "/recuperar";
 
     const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
@@ -55,13 +55,39 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url);
     }
 
-    if (user && isAuthRoute) {
-        // Authenticated and trying to access auth pages
-        // Redirect to appropriate dashboard based on role
-        // For now, redirect to admin dashboard (we'll improve this after DB setup)
-        const url = request.nextUrl.clone();
-        url.pathname = "/admin/dashboard";
-        return NextResponse.redirect(url);
+    if (user) {
+        // We have a user, check their role for better redirection/protection
+        const { data: profile } = await supabase
+            .from("users")
+            .select("role")
+            .eq("id", user.id)
+            .single();
+
+        const role = profile?.role;
+
+        // If trying to access auth pages (login/register) while logged in
+        if (isAuthRoute) {
+            const url = request.nextUrl.clone();
+            if (role === 'admin') {
+                url.pathname = "/admin/dashboard";
+            } else {
+                url.pathname = "/cliente/dashboard";
+            }
+            return NextResponse.redirect(url);
+        }
+
+        // Cross-role protection
+        if (isAdminRoute && role !== 'admin') {
+            const url = request.nextUrl.clone();
+            url.pathname = role === 'cliente' ? "/cliente/dashboard" : "/login";
+            return NextResponse.redirect(url);
+        }
+
+        if (isClienteRoute && role !== 'cliente' && role !== 'admin') {
+            const url = request.nextUrl.clone();
+            url.pathname = "/login";
+            return NextResponse.redirect(url);
+        }
     }
 
     // IMPORTANT: You *must* return the supabaseResponse object as it is.
