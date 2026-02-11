@@ -1,18 +1,18 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import ComparisonInterface from "@/components/cliente/comparison-interface";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-export default async function ComparacionPage({
+export default async function AdminResultadosPage({
     params,
-    searchParams,
 }: {
     params: Promise<{ proyectoId: string }>;
-    searchParams: Promise<{ tab?: string }>;
 }) {
     const { proyectoId } = await params;
-    const { tab } = await searchParams;
     const supabase = await createClient();
 
     // 1. Fetch Project and the associated version structure
@@ -48,16 +48,9 @@ export default async function ComparacionPage({
         .eq("id", proyectoId)
         .single();
 
-    if (proyectoError) {
-        return (
-            <div className="p-8">
-                <h1 className="text-red-500 font-bold">Error fetching project</h1>
-                <pre>{JSON.stringify(proyectoError, null, 2)}</pre>
-            </div>
-        );
+    if (proyectoError || !proyecto) {
+        notFound();
     }
-
-    if (!proyecto) return <div className="p-8">No se encontró el proyecto.</div>;
 
     // 2. Fetch Lotes for this project
     const { data: lotes } = await supabase
@@ -74,14 +67,29 @@ export default async function ComparacionPage({
         .in("lote_id", loteIds);
 
     return (
-        <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden">
-            <ComparisonInterface
-                proyecto={proyecto}
-                lotes={lotes || []}
-                evaluaciones={evaluaciones || []}
-                initialTab={tab}
-                showManagement={tab === 'gestion'}
-            />
+        <div className="h-screen flex flex-col overflow-hidden">
+            <div className="bg-card border-b px-6 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Button variant="ghost" size="icon" asChild className="h-8 w-8">
+                        <Link href="/admin/proyectos">
+                            <ArrowLeft className="h-4 w-4" />
+                        </Link>
+                    </Button>
+                    <div>
+                        <h1 className="text-lg font-bold leading-none">{proyecto.nombre}</h1>
+                        <p className="text-xs text-muted-foreground mt-1">Vista de Administrador - Resultados de Comparación</p>
+                    </div>
+                </div>
+            </div>
+            <div className="flex-1 overflow-hidden">
+                <ComparisonInterface
+                    proyecto={proyecto}
+                    lotes={lotes || []}
+                    evaluaciones={evaluaciones || []}
+                    readOnly={true}
+                    showManagement={false}
+                />
+            </div>
         </div>
     );
 }

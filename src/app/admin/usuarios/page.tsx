@@ -21,7 +21,10 @@ export default async function UsuariosPage() {
 
     const { data: users } = await supabase
         .from("users")
-        .select("*")
+        .select(`
+            *,
+            proyectos(count)
+        `)
         .order("created_at", { ascending: false });
 
     return (
@@ -57,6 +60,7 @@ export default async function UsuariosPage() {
                                 <TableHead className="text-xs uppercase font-bold tracking-wider">Usuario</TableHead>
                                 <TableHead className="text-xs uppercase font-bold tracking-wider">Rol</TableHead>
                                 <TableHead className="text-xs uppercase font-bold tracking-wider">Email</TableHead>
+                                <TableHead className="text-xs uppercase font-bold tracking-wider text-center">Proyectos</TableHead>
                                 <TableHead className="text-xs uppercase font-bold tracking-wider">Fecha de Alta</TableHead>
                                 <TableHead className="text-right text-xs uppercase font-bold tracking-wider px-6">Acciones</TableHead>
                             </TableRow>
@@ -86,6 +90,15 @@ export default async function UsuariosPage() {
                                             <Mail className="h-3.5 w-3.5 opacity-40" />
                                             {user.email}
                                         </div>
+                                    </TableCell>
+                                    <TableCell className="text-center">
+                                        {user.role === 'cliente' ? (
+                                            <Badge variant="outline" className="h-6 px-3 bg-primary/5 border-primary/20 text-primary font-black">
+                                                {(user.proyectos as any)?.[0]?.count || 0}
+                                            </Badge>
+                                        ) : (
+                                            <span className="text-muted-foreground/30">—</span>
+                                        )}
                                     </TableCell>
                                     <TableCell className="text-xs text-muted-foreground">
                                         {format(new Date(user.created_at), "PPP", { locale: es })}
