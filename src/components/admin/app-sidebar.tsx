@@ -62,10 +62,15 @@ export function AppSidebar() {
 
     return (
         <Sidebar>
-            <SidebarHeader className="p-4 border-b">
-                <h1 className="text-xl font-black text-primary tracking-tighter">Comparador</h1>
-                <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
-                    {isAdmin ? "Panel de Control" : "Área de Cliente"}
+            <SidebarHeader className="p-6 border-b/50">
+                <div className="flex items-center gap-2 mb-1">
+                    <div className="h-6 w-6 rounded bg-primary flex items-center justify-center">
+                        <div className="h-2 w-2 rounded-full bg-white animate-pulse" />
+                    </div>
+                    <h1 className="text-xl font-bold text-foreground tracking-tight">Comparador</h1>
+                </div>
+                <p className="text-[10px] uppercase font-bold text-muted-foreground/60 tracking-widest pl-1">
+                    {isAdmin ? "Panel de Gestión" : "Panel de Cliente"}
                 </p>
             </SidebarHeader>
             <SidebarContent>
@@ -101,6 +106,6 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarFooter>
-        </Sidebar>
+        </Sidebar >
     )
 }

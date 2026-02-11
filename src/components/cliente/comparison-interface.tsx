@@ -113,6 +113,8 @@ export default function ComparisonInterface({ proyecto, lotes, evaluaciones: ini
                             });
 
                             const progress = totalCriteria > 0 ? (evaluatedCriteria / totalCriteria) * 100 : 0;
+                            const isActive = selectedLoteId === lote.id;
+                            const isComplete = progress === 100;
 
                             return (
                                 <button
@@ -122,38 +124,36 @@ export default function ComparisonInterface({ proyecto, lotes, evaluaciones: ini
                                         setActiveTab("evaluacion");
                                     }}
                                     className={cn(
-                                        "w-full text-left p-4 rounded-xl border transition-all duration-200 group relative overflow-hidden",
-                                        selectedLoteId === lote.id
-                                            ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-[1.02] z-10"
-                                            : "bg-card hover:bg-muted text-card-foreground border-border hover:border-primary/30"
+                                        "w-full text-left p-4 rounded-xl transition-all relative group",
+                                        isActive
+                                            ? "bg-secondary shadow-sm ring-1 ring-primary/5"
+                                            : "hover:bg-muted/50"
                                     )}
                                 >
-                                    <div className="flex justify-between items-start mb-2">
-                                        <div className="space-y-1">
-                                            <p className="font-bold text-sm leading-tight">{lote.nombre}</p>
-                                            <p className={cn(
-                                                "text-[10px] leading-tight line-clamp-1",
-                                                selectedLoteId === lote.id ? "text-primary-foreground/70" : "text-muted-foreground"
-                                            )}>
-                                                {lote.ubicacion}
-                                            </p>
-                                        </div>
-                                        {progress === 100 && (
-                                            <CheckCircle2 className={cn("h-4 w-4", selectedLoteId === lote.id ? "text-white" : "text-primary")} />
+                                    {isActive && (
+                                        <div className="absolute left-0 top-4 bottom-4 w-1 bg-primary rounded-r-lg" />
+                                    )}
+                                    <div className="flex justify-between items-start mb-1">
+                                        <span className={cn(
+                                            "font-bold text-sm tracking-tight",
+                                            isActive ? "text-primary" : "text-foreground"
+                                        )}>
+                                            {lote.nombre}
+                                        </span>
+                                        {isComplete ? (
+                                            <CheckCircle2 className="h-4 w-4 text-primary" />
+                                        ) : (
+                                            <Circle className="h-4 w-4 text-muted-foreground/30" />
                                         )}
                                     </div>
-
-                                    <div className="mt-3 space-y-1.5">
-                                        <div className="flex justify-between text-[9px] font-bold uppercase tracking-tight">
-                                            <span>Progreso</span>
-                                            <span>{Math.round(progress)}%</span>
-                                        </div>
-                                        <div className="h-1 w-full bg-black/10 rounded-full overflow-hidden">
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
                                             <div
-                                                className={cn("h-full transition-all duration-500", selectedLoteId === lote.id ? "bg-white" : "bg-primary")}
+                                                className="h-full bg-primary transition-all duration-500"
                                                 style={{ width: `${progress}%` }}
                                             />
                                         </div>
+                                        <span className="text-[10px] font-bold text-muted-foreground">{Math.round(progress)}%</span>
                                     </div>
                                 </button>
                             );

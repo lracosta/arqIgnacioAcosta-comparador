@@ -90,7 +90,7 @@ export default function ResultsView({ proyecto, lotes, evaluaciones }: ResultsVi
         return item;
     });
 
-    const colors = ['#8BC34A', '#3F51B5', '#FF9800', '#E91E63', '#9C27B0', '#00BCD4'];
+    const colors = ['#FF581A', '#3B4ED4', '#6366f1', '#10b981', '#f59e0b', '#06b6d4'];
 
     return (
         <div className="flex-1 overflow-y-auto w-full">
@@ -165,7 +165,7 @@ export default function ResultsView({ proyecto, lotes, evaluaciones }: ResultsVi
                                         />
                                         <Bar dataKey="score" radius={[6, 6, 0, 0]} barSize={40}>
                                             {chartData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={index === 0 ? '#8BC34A' : '#E2E8F0'} />
+                                                <Cell key={`cell-${index}`} fill={index === 0 ? '#FF581A' : '#E2E8F0'} />
                                             ))}
                                         </Bar>
                                     </BarChart>
