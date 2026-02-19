@@ -28,6 +28,7 @@ import {
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { toast } from "sonner";
 import { createLoteCliente, updateLoteCliente, deleteLoteCliente, updateLoteOrderCliente } from "@/app/cliente/actions";
+import GoogleMapSelector from "./google-map-selector";
 
 interface LotEditorClienteProps {
     proyectoId: string;
@@ -44,6 +45,9 @@ export default function LotEditorCliente({ proyectoId, initialLotes }: LotEditor
     const [nombre, setNombre] = useState("");
     const [ubicacion, setUbicacion] = useState("");
     const [descripcion, setDescripcion] = useState("");
+    const [lat, setLat] = useState<number | null>(null);
+    const [lng, setLng] = useState<number | null>(null);
+    const [direccionFormateada, setDireccionFormateada] = useState<string | null>(null);
 
     useEffect(() => {
         setLotes(initialLotes);
@@ -58,7 +62,15 @@ export default function LotEditorCliente({ proyectoId, initialLotes }: LotEditor
 
         setIsLoading(true);
         try {
-            await createLoteCliente(proyectoId, nombre, ubicacion, descripcion);
+            await createLoteCliente(
+                proyectoId,
+                nombre,
+                ubicacion,
+                descripcion,
+                lat || undefined,
+                lng || undefined,
+                direccionFormateada || undefined
+            );
             toast.success("Lote agregado");
             resetForm();
             setIsAddDialogOpen(false);
@@ -75,7 +87,16 @@ export default function LotEditorCliente({ proyectoId, initialLotes }: LotEditor
 
         setIsLoading(true);
         try {
-            await updateLoteCliente(isEditing, nombre, ubicacion, descripcion, proyectoId);
+            await updateLoteCliente(
+                isEditing,
+                nombre,
+                ubicacion,
+                descripcion,
+                proyectoId,
+                lat || undefined,
+                lng || undefined,
+                direccionFormateada || undefined
+            );
             toast.success("Lote actualizado");
             setIsEditing(null);
             resetForm();
@@ -102,12 +123,18 @@ export default function LotEditorCliente({ proyectoId, initialLotes }: LotEditor
         setNombre("");
         setUbicacion("");
         setDescripcion("");
+        setLat(null);
+        setLng(null);
+        setDireccionFormateada(null);
     };
 
     const startEditing = (lote: any) => {
         setNombre(lote.nombre);
         setUbicacion(lote.ubicacion);
         setDescripcion(lote.descripcion || "");
+        setLat(lote.lat || null);
+        setLng(lote.lng || null);
+        setDireccionFormateada(lote.direccion_formateada || null);
         setIsEditing(lote.id);
     };
 
@@ -142,7 +169,12 @@ export default function LotEditorCliente({ proyectoId, initialLotes }: LotEditor
                             <Plus className="mr-1 h-3.5 w-3.5" /> Agregar Lote
                         </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent onInteractOutside={(e) => {
+                        const target = e.target as HTMLElement;
+                        if (target.closest('.pac-container')) {
+                            e.preventDefault();
+                        }
+                    }}>
                         <form onSubmit={handleCreateLote}>
                             <DialogHeader>
                                 <DialogTitle>Agregar Nuevo Lote</DialogTitle>
@@ -154,10 +186,20 @@ export default function LotEditorCliente({ proyectoId, initialLotes }: LotEditor
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="ubicacion" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Ubicación</Label>
-                                    <div className="relative">
-                                        <MapPin className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                        <Input id="ubicacion" className="pl-9 h-10" value={ubicacion} onChange={e => setUbicacion(e.target.value)} placeholder="Ej: Av. Central 450" />
-                                    </div>
+                                    <GoogleMapSelector
+                                        apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
+                                        initialLat={null}
+                                        initialLng={null}
+                                        initialAddress={""}
+                                        onLocationSelect={(lat, lng, address) => {
+                                            setLat(lat);
+                                            setLng(lng);
+                                            setUbicacion(address);
+                                            setDireccionFormateada(address);
+                                        }}
+                                    />
+                                    {/* Hidden input to satisfy verification logic but updated by map */}
+                                    <input type="hidden" value={ubicacion} />
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="descripcion" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Notas (opcional)</Label>
@@ -252,7 +294,12 @@ export default function LotEditorCliente({ proyectoId, initialLotes }: LotEditor
                     resetForm();
                 }
             }}>
-                <DialogContent>
+                <DialogContent onInteractOutside={(e) => {
+                    const target = e.target as HTMLElement;
+                    if (target.closest('.pac-container')) {
+                        e.preventDefault();
+                    }
+                }}>
                     <form onSubmit={handleUpdateLote}>
                         <DialogHeader>
                             <DialogTitle>Editar Lote</DialogTitle>
@@ -264,10 +311,19 @@ export default function LotEditorCliente({ proyectoId, initialLotes }: LotEditor
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="edit-ubicacion" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Ubicación</Label>
-                                <div className="relative">
-                                    <MapPin className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                    <Input id="edit-ubicacion" className="pl-9 h-10" value={ubicacion} onChange={e => setUbicacion(e.target.value)} />
-                                </div>
+                                <GoogleMapSelector
+                                    apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
+                                    initialLat={lat}
+                                    initialLng={lng}
+                                    initialAddress={ubicacion}
+                                    onLocationSelect={(lat, lng, address) => {
+                                        setLat(lat);
+                                        setLng(lng);
+                                        setUbicacion(address);
+                                        setDireccionFormateada(address);
+                                    }}
+                                />
+                                <input type="hidden" value={ubicacion} />
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="edit-descripcion" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Notas</Label>

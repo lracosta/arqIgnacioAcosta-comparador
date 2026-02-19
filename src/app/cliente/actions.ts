@@ -67,7 +67,10 @@ export async function createLoteCliente(
     proyectoId: string,
     nombre: string,
     ubicacion: string,
-    descripcion: string
+    descripcion: string,
+    lat?: number,
+    lng?: number,
+    direccion_formateada?: string
 ) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -100,6 +103,9 @@ export async function createLoteCliente(
         ubicacion,
         descripcion,
         orden: nextOrder,
+        lat,
+        lng,
+        direccion_formateada
     });
 
     if (error) return { error: error.message };
@@ -111,7 +117,10 @@ export async function updateLoteCliente(
     nombre: string,
     ubicacion: string,
     descripcion: string,
-    proyectoId: string
+    proyectoId: string,
+    lat?: number,
+    lng?: number,
+    direccion_formateada?: string
 ) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -130,7 +139,14 @@ export async function updateLoteCliente(
 
     const { error } = await supabase
         .from("lotes")
-        .update({ nombre, ubicacion, descripcion })
+        .update({
+            nombre,
+            ubicacion,
+            descripcion,
+            lat,
+            lng,
+            direccion_formateada
+        })
         .eq("id", id)
         .eq("proyecto_id", proyectoId);
 
