@@ -27,7 +27,7 @@ import {
     TableRow
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Medal, AlertCircle, Info } from "lucide-react";
+import { Trophy, Medal, AlertCircle, Info, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ExportButton from "./export-button";
 
@@ -107,48 +107,64 @@ export default function ResultsView({ proyecto, lotes, evaluaciones }: ResultsVi
                 {/* Top 3 Podium */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {rankingData.slice(0, 3).map((lote: any, index: number) => (
-                        <Card key={lote.id} className={cn(
-                            "relative overflow-hidden border-2 transition-all hover:scale-[1.03]",
-                            index === 0 ? "border-primary/40 bg-primary/5 shadow-xl shadow-primary/10" : "border-border shadow-md"
+                        <div key={lote.id} className={cn(
+                            "relative flex flex-col rounded-2xl overflow-hidden border bg-card transition-all duration-300 group hover:-translate-y-1 hover:shadow-xl",
+                            index === 0 ? "border-primary/50 shadow-lg shadow-primary/10 ring-1 ring-primary/20 scale-[1.02]" : "border-border shadow-md"
                         )}>
-                            {lote.imagen && (
-                                <div className="w-full h-32 overflow-hidden relative border-b border-border/10">
-                                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent z-10" />
-                                    <img src={lote.imagen} alt={lote.nombre} className="w-full h-full object-cover" />
-                                </div>
-                            )}
-                            {index === 0 && (
-                                <div className="absolute top-2 right-2 p-2 z-20">
-                                    <Trophy className="h-10 w-10 text-primary opacity-80 drop-shadow-sm -rotate-12" />
-                                </div>
-                            )}
-                            <CardHeader className="pb-2 relative z-20 -mt-8">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <div className={cn(
-                                        "h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-black",
-                                        index === 0 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                                    )}>
-                                        {index + 1}
+                            {/* Image Header with Ranking Badge */}
+                            <div className="relative h-40 w-full overflow-hidden bg-muted">
+                                {lote.imagen ? (
+                                    <img
+                                        src={lote.imagen}
+                                        alt={lote.nombre}
+                                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    />
+                                ) : (
+                                    <div className="flex h-full w-full items-center justify-center bg-secondary/30">
+                                        <LayoutGrid className="h-10 w-10 text-muted-foreground/10" />
                                     </div>
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Posición</p>
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-90" />
+
+                                {index === 0 && (
+                                    <div className="absolute top-3 right-3">
+                                        <div className="bg-primary text-primary-foreground p-2 rounded-full shadow-lg animate-in zoom-in spin-in-12 duration-500">
+                                            <Trophy className="h-5 w-5" />
+                                        </div>
+                                    </div>
+                                )}
+
+                            </div>
+
+                            <div className={cn(
+                                "relative -mt-5 mx-auto h-10 w-10 rounded-xl flex items-center justify-center font-black text-lg shadow-lg border-4 border-card z-10",
+                                index === 0 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                            )}>
+                                {index + 1}
+                            </div>
+
+                            {/* Card Content */}
+                            <div className="pt-2 pb-6 px-6 flex flex-col items-center flex-1">
+                                <h3 className="text-xl font-black tracking-tight text-center mb-1 line-clamp-1" title={lote.nombre}>
+                                    {lote.nombre}
+                                </h3>
+                                <div className="flex items-baseline gap-1 mb-6">
+                                    <span className="text-4xl font-black text-primary tracking-tighter">
+                                        {lote.total.toFixed(1)}
+                                    </span>
+                                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">pts</span>
                                 </div>
-                                <CardTitle className="text-xl truncate">{lote.nombre}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-3xl font-black text-primary">{lote.total.toFixed(1)}</span>
-                                    <span className="text-sm font-medium text-muted-foreground">puntos</span>
-                                </div>
-                                <div className="mt-4 space-y-2">
+
+                                <div className="w-full grid grid-cols-2 gap-x-4 gap-y-2 mt-auto">
                                     {template.clasificaciones.map((c: any) => (
-                                        <div key={c.id} className="flex justify-between text-[11px]">
-                                            <span className="text-muted-foreground">{c.nombre}</span>
-                                            <span className="font-bold">{(lote[c.nombre] || 0).toFixed(1)}</span>
+                                        <div key={c.id} className="flex justify-between items-center text-[10px] py-1 border-b border-border/40 last:border-0">
+                                            <span className="text-muted-foreground font-medium truncate pr-2">{c.nombre}</span>
+                                            <span className="font-bold text-foreground">{(lote[c.nombre] || 0).toFixed(1)}</span>
                                         </div>
                                     ))}
                                 </div>
-                            </CardContent>
-                        </Card>
+                            </div>
+                        </div>
                     ))}
                 </div>
 

@@ -9,7 +9,8 @@ import {
     LayoutGrid,
     Table as TableIcon,
     ChevronRight,
-    Search
+    Search,
+    MapPin
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -77,23 +78,48 @@ export default function ComparisonTable({
             <table className="w-full border-collapse">
                 <thead>
                     <tr className="bg-muted/30">
-                        <th className="p-6 text-left border-b border-border/60 min-w-[300px] z-10 sticky left-0 bg-muted/30 backdrop-blur-md">
+                        <th className="p-6 text-left border-b border-border/60 min-w-[300px] z-10 sticky left-0 bg-card shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">Criterios de Evaluación</span>
                                 <span className="text-xs text-muted-foreground font-medium">Seleccione la opción que mejor describa cada lote.</span>
                             </div>
                         </th>
                         {lotes.map(lote => (
-                            <th key={lote.id} className="p-6 text-center border-b border-border/60 min-w-[200px] bg-muted/20 align-top">
-                                <div className="flex flex-col items-center gap-2">
-                                    {lote.imagen && (
-                                        <div className="w-full aspect-video rounded-lg overflow-hidden mb-2 shadow-sm border border-border/40">
-                                            <img src={lote.imagen} alt={lote.nombre} className="w-full h-full object-cover transition-transform hover:scale-105 duration-500" />
+                            <th key={lote.id} className="p-4 align-top border-b border-border/60 min-w-[220px] bg-muted/5 group/col transition-colors hover:bg-muted/10">
+                                <div className="flex flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all hover:shadow-md hover:border-primary/20 hover:-translate-y-0.5 duration-300">
+                                    {/* Image Section */}
+                                    <div className="relative h-28 w-full overflow-hidden bg-muted group/img">
+                                        {lote.imagen ? (
+                                            <img
+                                                src={lote.imagen}
+                                                alt={lote.nombre}
+                                                className="h-full w-full object-cover transition-transform duration-700 group-hover/img:scale-110"
+                                            />
+                                        ) : (
+                                            <div className="flex h-full w-full items-center justify-center bg-secondary/30">
+                                                <LayoutGrid className="h-8 w-8 text-muted-foreground/10" />
+                                            </div>
+                                        )}
+                                        {/* Floating Badge */}
+                                        <div className="absolute top-2 left-2">
+                                            <Badge variant="secondary" className="h-5 px-1.5 text-[9px] font-bold uppercase tracking-wider bg-background/90 backdrop-blur-sm border-none text-foreground/80 shadow-sm">
+                                                Lote
+                                            </Badge>
                                         </div>
-                                    )}
-                                    <Badge variant="outline" className="text-[9px] font-bold bg-background/50 mb-1">LOTE</Badge>
-                                    <div className="text-lg font-black tracking-tight">{lote.nombre}</div>
-                                    <div className="text-[10px] text-muted-foreground font-medium truncate max-w-[150px]">{lote.ubicacion}</div>
+                                    </div>
+
+                                    {/* Content Section */}
+                                    <div className="flex flex-col gap-1 p-3 text-left">
+                                        <div className="text-sm font-black tracking-tight leading-tight text-foreground truncate" title={lote.nombre}>
+                                            {lote.nombre}
+                                        </div>
+                                        <div className="flex items-center gap-1.5 text-muted-foreground w-full">
+                                            <MapPin className="h-3 w-3 shrink-0 opacity-70" />
+                                            <span className="text-[10px] font-medium truncate leading-none flex-1" title={lote.ubicacion}>
+                                                {lote.ubicacion}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </th>
                         ))}
@@ -107,11 +133,11 @@ export default function ComparisonTable({
                             <TooltipProvider key={clasif.id}>
                                 {/* Classification Header Row */}
                                 <tr
-                                    className="bg-primary/[0.03] cursor-pointer hover:bg-primary/[0.05] transition-colors"
+                                    className="bg-primary/[0.03] cursor-pointer hover:bg-primary/[0.05] transition-colors group"
                                     onClick={() => toggleClasif(clasif.id)}
                                 >
-                                    <td className="p-4 border-b border-border/40 z-10 sticky left-0 bg-primary/[0.03] backdrop-blur-sm" colSpan={1}>
-                                        <div className="flex items-center gap-2">
+                                    <td className="p-0 border-b border-border/40 z-10 sticky left-0 bg-card shadow-[4px_0_10px_rgba(0,0,0,0.01)]" colSpan={1}>
+                                        <div className="w-full h-full p-4 flex items-center gap-2 bg-primary/[0.03] group-hover:bg-primary/[0.05] transition-colors">
                                             {isExpanded ? <ChevronUp className="h-4 w-4 text-primary" /> : <ChevronDown className="h-4 w-4 text-primary" />}
                                             <span className="text-xs font-black uppercase tracking-widest text-primary/80">
                                                 {clasif.nombre}
@@ -126,7 +152,7 @@ export default function ComparisonTable({
                                 {/* Criteria Rows within Classification */}
                                 {isExpanded && clasif.criterios.map((criterio: any) => (
                                     <tr key={criterio.id} className="group hover:bg-muted/10 transition-colors">
-                                        <td className="p-6 border-b border-border/40 z-10 sticky left-0 bg-card group-hover:bg-muted/20 transition-colors shadow-[2px_0_5px_rgba(0,0,0,0.02)]">
+                                        <td className="p-6 border-b border-border/40 z-10 sticky left-0 bg-card group-hover:bg-muted transition-colors shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
                                             <div className="space-y-1">
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-sm font-bold text-foreground leading-tight">{criterio.nombre}</span>
@@ -212,7 +238,7 @@ export default function ComparisonTable({
                 </tbody>
                 <tfoot>
                     <tr className="bg-primary/[0.03] font-black">
-                        <td className="p-6 border-t-2 border-primary z-10 sticky left-0 bg-primary/[0.03] backdrop-blur-md">
+                        <td className="p-6 border-t-2 border-primary z-10 sticky left-0 bg-card shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
                             <span className="text-sm uppercase tracking-widest text-primary">Puntaje Total del Lote</span>
                         </td>
                         {lotes.map(lote => {
