@@ -70,6 +70,7 @@ export default function ResultsView({ proyecto, lotes, evaluaciones }: ResultsVi
             return {
                 id: lote.id,
                 nombre: lote.nombre,
+                imagen: lote.imagen,
                 total,
                 ...scoresByClasificacion
             } as any;
@@ -110,12 +111,18 @@ export default function ResultsView({ proyecto, lotes, evaluaciones }: ResultsVi
                             "relative overflow-hidden border-2 transition-all hover:scale-[1.03]",
                             index === 0 ? "border-primary/40 bg-primary/5 shadow-xl shadow-primary/10" : "border-border shadow-md"
                         )}>
-                            {index === 0 && (
-                                <div className="absolute top-0 right-0 p-2">
-                                    <Trophy className="h-10 w-10 text-primary opacity-20 -rotate-12" />
+                            {lote.imagen && (
+                                <div className="w-full h-32 overflow-hidden relative border-b border-border/10">
+                                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent z-10" />
+                                    <img src={lote.imagen} alt={lote.nombre} className="w-full h-full object-cover" />
                                 </div>
                             )}
-                            <CardHeader className="pb-2">
+                            {index === 0 && (
+                                <div className="absolute top-2 right-2 p-2 z-20">
+                                    <Trophy className="h-10 w-10 text-primary opacity-80 drop-shadow-sm -rotate-12" />
+                                </div>
+                            )}
+                            <CardHeader className="pb-2 relative z-20 -mt-8">
                                 <div className="flex items-center gap-2 mb-1">
                                     <div className={cn(
                                         "h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-black",

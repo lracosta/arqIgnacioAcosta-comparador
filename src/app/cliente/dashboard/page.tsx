@@ -113,7 +113,7 @@ export default async function ClienteDashboard() {
                                     </Button>
                                     <Button asChild variant="outline" size="sm" className="w-full h-10 border-primary/20 hover:bg-primary/5 hover:text-primary transition-colors text-xs">
                                         <Link href={`/cliente/comparacion/${proyecto.id}?tab=gestion`}>
-                                            Configurar Lotes e Info
+                                            Configurar Proyecto
                                         </Link>
                                     </Button>
                                 </div>

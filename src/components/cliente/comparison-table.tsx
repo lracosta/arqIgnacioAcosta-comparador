@@ -84,8 +84,13 @@ export default function ComparisonTable({
                             </div>
                         </th>
                         {lotes.map(lote => (
-                            <th key={lote.id} className="p-6 text-center border-b border-border/60 min-w-[200px] bg-muted/20">
-                                <div className="flex flex-col items-center gap-1">
+                            <th key={lote.id} className="p-6 text-center border-b border-border/60 min-w-[200px] bg-muted/20 align-top">
+                                <div className="flex flex-col items-center gap-2">
+                                    {lote.imagen && (
+                                        <div className="w-full aspect-video rounded-lg overflow-hidden mb-2 shadow-sm border border-border/40">
+                                            <img src={lote.imagen} alt={lote.nombre} className="w-full h-full object-cover transition-transform hover:scale-105 duration-500" />
+                                        </div>
+                                    )}
                                     <Badge variant="outline" className="text-[9px] font-bold bg-background/50 mb-1">LOTE</Badge>
                                     <div className="text-lg font-black tracking-tight">{lote.nombre}</div>
                                     <div className="text-[10px] text-muted-foreground font-medium truncate max-w-[150px]">{lote.ubicacion}</div>

@@ -17,8 +17,20 @@ import {
     AlertCircle,
     Check,
     Layers,
-    Info
+    Info,
+    Edit
 } from "lucide-react";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { saveEvaluation, finalizarProyecto } from "@/app/cliente/comparacion/[proyectoId]/actions";
@@ -29,6 +41,7 @@ import ResultsView from "./results-view";
 import ExportButton from "./export-button";
 import LotEditorCliente from "./lot-editor-cliente";
 import ComparisonTable from "./comparison-table";
+import ProjectEditorCliente from "./project-editor-cliente";
 
 interface ComparisonInterfaceProps {
     proyecto: any;
@@ -246,6 +259,23 @@ export default function ComparisonInterface({
                             <Card className="border-border/60 shadow-xl rounded-3xl overflow-hidden">
                                 <CardHeader className="bg-muted/10 border-b pb-6">
                                     <div className="flex items-center gap-3">
+                                        <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 shadow-lg shadow-blue-500/20">
+                                            <Edit className="h-5 w-5" />
+                                        </div>
+                                        <div>
+                                            <CardTitle className="text-2xl font-black tracking-tight">Datos del Proyecto</CardTitle>
+                                            <CardDescription>Modifique la información general del proyecto.</CardDescription>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="pt-8 px-8">
+                                    <ProjectEditorCliente proyecto={proyecto} />
+                                </CardContent>
+                            </Card>
+
+                            <Card className="border-border/60 shadow-xl rounded-3xl overflow-hidden">
+                                <CardHeader className="bg-muted/10 border-b pb-6">
+                                    <div className="flex items-center gap-3">
                                         <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
                                             <Layers className="h-5 w-5" />
                                         </div>
@@ -296,15 +326,32 @@ export default function ComparisonInterface({
                                                         PROYECTO FINALIZADO
                                                     </Badge>
                                                 ) : (
-                                                    <Button
-                                                        onClick={handleFinalizar}
-                                                        disabled={isFinalizing}
-                                                        size="lg"
-                                                        className="w-full md:w-auto bg-orange-600 hover:bg-orange-700 text-white font-black shadow-xl shadow-orange-200 px-8 py-6 rounded-2xl"
-                                                    >
-                                                        {isFinalizing ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <CheckCircle2 className="h-5 w-5 mr-2" />}
-                                                        Finalizar Ahora
-                                                    </Button>
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger asChild>
+                                                            <Button
+                                                                disabled={isFinalizing}
+                                                                size="lg"
+                                                                className="w-full md:w-auto bg-orange-600 hover:bg-orange-700 text-white font-black shadow-xl shadow-orange-200 px-8 py-6 rounded-2xl"
+                                                            >
+                                                                {isFinalizing ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <CheckCircle2 className="h-5 w-5 mr-2" />}
+                                                                Finalizar Ahora
+                                                            </Button>
+                                                        </AlertDialogTrigger>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                                <AlertDialogTitle>¿Está seguro de finalizar el proyecto?</AlertDialogTitle>
+                                                                <AlertDialogDescription>
+                                                                    Esta acción guardará el estado actual de forma permanente y notificará al administrador. Una vez finalizado, no podrá realizar más cambios.
+                                                                </AlertDialogDescription>
+                                                            </AlertDialogHeader>
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                                <AlertDialogAction onClick={handleFinalizar} className="bg-orange-600 hover:bg-orange-700">
+                                                                    Confirmar Finalización
+                                                                </AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
                                                 )
                                             )}
                                         </div>
