@@ -48,6 +48,7 @@ export default function ComparisonTable({
         template.clasificaciones.map((c: any) => c.id)
     );
     const [editingCell, setEditingCell] = useState<{ loteId: string, loteNombre: string, criterio: any, currentFactorId?: string } | null>(null);
+    const [pendingFactorId, setPendingFactorId] = useState<string | null>(null);
 
     const toggleClasif = (id: string) => {
         setExpandedClasif(prev =>
@@ -56,9 +57,14 @@ export default function ComparisonTable({
     };
 
     const handleSelectOption = (factorId: string) => {
-        if (!editingCell) return;
-        onSelectFactor(editingCell.loteId, factorId);
+        setPendingFactorId(factorId);
+    };
+
+    const handleConfirmSelection = () => {
+        if (!editingCell || !pendingFactorId) return;
+        onSelectFactor(editingCell.loteId, pendingFactorId);
         setEditingCell(null);
+        setPendingFactorId(null);
     };
 
     if (lotes.length === 0) {
@@ -168,7 +174,7 @@ export default function ComparisonTable({
                                                     )}
                                                 </div>
                                                 <div className="flex items-center gap-1.5">
-                                                    <span className="text-[10px] font-bold text-muted-foreground/60 uppercase">Importancia:</span>
+                                                    <span className="text-[10px] font-bold text-muted-foreground/60 uppercase">Incidencia:</span>
                                                     <Badge variant="outline" className="h-4 px-1.5 text-[9px] border-primary/20 text-primary font-bold">
                                                         {parseFloat(criterio.puntaje_maximo).toFixed(0)} pts
                                                     </Badge>
@@ -185,12 +191,16 @@ export default function ComparisonTable({
                                                     <div className="flex flex-col gap-2">
                                                         <button
                                                             disabled={readOnly}
-                                                            onClick={() => !readOnly && setEditingCell({
-                                                                loteId: lote.id,
-                                                                loteNombre: lote.nombre,
-                                                                criterio: criterio,
-                                                                currentFactorId: selectedFactor?.id
-                                                            })}
+                                                            onClick={() => {
+                                                                if (readOnly) return;
+                                                                setPendingFactorId(selectedFactor?.id || null);
+                                                                setEditingCell({
+                                                                    loteId: lote.id,
+                                                                    loteNombre: lote.nombre,
+                                                                    criterio: criterio,
+                                                                    currentFactorId: selectedFactor?.id
+                                                                });
+                                                            }}
                                                             className={cn(
                                                                 "w-full text-left p-3 rounded-xl border transition-all flex items-center justify-between group/btn",
                                                                 selectedFactor
@@ -257,7 +267,12 @@ export default function ComparisonTable({
             </table>
 
             {/* Selection Dialog */}
-            <Dialog open={!!editingCell} onOpenChange={() => setEditingCell(null)}>
+            <Dialog open={!!editingCell} onOpenChange={(open) => {
+                if (!open) {
+                    setEditingCell(null);
+                    setPendingFactorId(null);
+                }
+            }}>
                 <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-3xl border-none shadow-2xl">
                     <DialogHeader className="p-8 pb-4 bg-muted/10">
                         <div className="flex items-center gap-2 mb-2">
@@ -278,10 +293,7 @@ export default function ComparisonTable({
                     <div className="p-6 pt-2 overflow-y-auto max-h-[60vh]">
                         <div className="grid grid-cols-1 gap-3">
                             {editingCell?.criterio.factores.sort((a: any, b: any) => b.valor - a.valor).map((factor: any) => {
-                                // Check if this factor is currently selected
-                                const isSelected = evaluaciones.some(e =>
-                                    e.lote_id === editingCell.loteId && e.factor_id === factor.id
-                                );
+                                const isSelected = pendingFactorId === factor.id;
 
                                 return (
                                     <button
@@ -321,11 +333,7 @@ export default function ComparisonTable({
                                                 </p>
                                             )}
                                         </div>
-                                        {isSelected && (
-                                            <div className="absolute top-0 right-0 p-1">
-                                                <div className="bg-primary h-2 w-2 rounded-full" />
-                                            </div>
-                                        )}
+
                                     </button>
                                 );
                             })}
@@ -333,11 +341,21 @@ export default function ComparisonTable({
                     </div>
                     <div className="p-6 bg-muted/10 border-t flex justify-between items-center">
                         <p className="text-[10px] text-muted-foreground font-medium italic">
-                            Importancia del criterio: <span className="font-black text-foreground">{editingCell?.criterio.puntaje_maximo} pts</span>
+                            Incidencia del criterio: <span className="font-black text-foreground">{editingCell?.criterio.puntaje_maximo} pts</span>
                         </p>
-                        <Button variant="ghost" size="sm" onClick={() => setEditingCell(null)} className="font-bold text-xs h-8">
-                            Cancelar
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="sm" onClick={() => { setEditingCell(null); setPendingFactorId(null); }} className="font-bold text-xs h-8">
+                                Cancelar
+                            </Button>
+                            <Button
+                                size="sm"
+                                disabled={!pendingFactorId}
+                                onClick={handleConfirmSelection}
+                                className="font-bold text-xs h-8 px-6"
+                            >
+                                Aceptar
+                            </Button>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>

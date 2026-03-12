@@ -157,6 +157,19 @@ export default function ComparisonInterface({
                             Evaluando con metodología: {template.nombre} (v{template.version})
                         </p>
                     </div>
+                    {activeTab === 'evaluacion' && (
+                        <div className="hidden md:flex flex-col items-end mr-2">
+                            {isSaving ? (
+                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary animate-pulse">
+                                    <Loader2 className="h-3 w-3 animate-spin" /> Guardando...
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground/40">
+                                    <CheckCircle2 className="h-3 w-3" /> Cambios Guardados
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex items-center gap-2 bg-muted/20 p-1 rounded-xl border border-border/40">
@@ -199,24 +212,6 @@ export default function ComparisonInterface({
                             <LayoutDashboard className="h-3.5 w-3.5" /> Lotes
                         </button>
                     )}
-                </div>
-
-                <div className="flex items-center gap-3 ml-auto md:ml-0">
-                    {activeTab === 'evaluacion' && (
-                        <div className="hidden md:flex flex-col items-end mr-2">
-                            {isSaving ? (
-                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary animate-pulse">
-                                    <Loader2 className="h-3 w-3 animate-spin" /> Guardando...
-                                </div>
-                            ) : (
-                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground/40">
-                                    <CheckCircle2 className="h-3 w-3" /> Cambios Guardados
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    <ExportButton proyectoId={proyecto.id} projectName={proyecto.nombre} />
 
                     <Button variant="ghost" size="sm" asChild className="text-xs h-9 font-bold">
                         <Link href="/cliente/dashboard">Salir</Link>
