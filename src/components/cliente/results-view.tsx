@@ -31,6 +31,55 @@ import { Trophy, Medal, AlertCircle, Info, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ExportButton from "./export-button";
 
+// ── Styles ──────────────────────────────────────────────────────────────────────
+const s = {
+    // Layout
+    root:          "flex-1 overflow-y-auto w-full",
+    container:     "p-8 max-w-6xl mx-auto space-y-8",
+    titleRow:      "flex justify-between items-start",
+    title:         "text-3xl font-black tracking-tight text-foreground",
+    subtitle:      "text-muted-foreground",
+
+    // Top 3 Podium
+    podiumGrid:    "grid grid-cols-1 md:grid-cols-3 gap-6",
+    podiumCard:    "relative flex flex-col rounded-2xl overflow-hidden border bg-card transition-all duration-300 group hover:-translate-y-1 hover:shadow-xl",
+    podiumWinner:  "border-primary/50 shadow-lg shadow-primary/10 ring-1 ring-primary/20 scale-[1.02]",
+    podiumDefault: "border-border shadow-md",
+    podiumImage:   "relative h-40 w-full overflow-hidden bg-muted",
+    podiumImg:     "h-full w-full object-cover transition-transform duration-700 group-hover:scale-110",
+    podiumPlaceholder: "flex h-full w-full items-center justify-center bg-secondary/30",
+    podiumGradient:"absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-90",
+    podiumTrophy:  "bg-primary text-primary-foreground p-2 rounded-full shadow-lg animate-in zoom-in spin-in-12 duration-500",
+    podiumBadge:   "relative -mt-5 mx-auto h-10 w-10 rounded-xl flex items-center justify-center font-black text-lg shadow-lg border-4 border-card z-10",
+    podiumBadgeWin:"bg-primary text-primary-foreground",
+    podiumBadgeDef:"bg-muted text-muted-foreground",
+    podiumContent: "pt-2 pb-6 px-6 flex flex-col items-center flex-1",
+    podiumName:    "text-xl font-black tracking-tight text-center mb-1 line-clamp-1",
+    podiumScore:   "text-4xl font-black text-primary tracking-tighter",
+    podiumPts:     "text-xs font-bold text-muted-foreground uppercase tracking-wider",
+    podiumBreakdown:    "w-full grid grid-cols-2 gap-x-4 gap-y-2 mt-auto",
+    podiumBreakdownRow: "flex justify-between items-center text-[10px] py-1 border-b border-border/40 last:border-0",
+    podiumBreakdownLabel: "text-muted-foreground font-medium truncate pr-2",
+    podiumBreakdownValue: "font-bold text-foreground",
+
+    // Charts
+    chartsGrid:    "grid grid-cols-1 lg:grid-cols-2 gap-8",
+    chartCard:     "shadow-sm",
+    chartTitle:    "text-lg",
+    chartContainer:"h-[300px] w-full",
+
+    // Ranking table
+    rankingCard:   "shadow-sm overflow-hidden",
+    rankingHeader: "bg-muted/10 border-b",
+    rankingColHead:"text-right text-[10px] uppercase font-bold tracking-tight",
+    rankingTotal:  "text-right font-black text-primary",
+    rankingWinRow: "bg-primary/5",
+    rankingPos:    "text-center font-bold",
+    rankingName:   "font-semibold",
+    rankingScore:  "text-right text-xs",
+    rankingTotalCell: "text-right font-black text-lg text-primary",
+} as const;
+
 interface ResultsViewProps {
     proyecto: any;
     lotes: any[];
@@ -50,14 +99,12 @@ export default function ResultsView({ proyecto, lotes, evaluaciones }: ResultsVi
                 let clasifTotal = 0;
 
                 clasificacion.criterios.forEach((criterio: any) => {
-                    // Find if any factor of this criterion is evaluated for this lote
                     const factorIds = criterio.factores.map((f: any) => f.id);
                     const evaluation = evaluationsOfLote.find(e => factorIds.includes(e.factor_id));
 
                     if (evaluation) {
                         const selectedFactor = criterio.factores.find((f: any) => f.id === evaluation.factor_id);
                         if (selectedFactor) {
-                            // Score = Factor Value (0 to 1) * Criterion Max Score
                             clasifTotal += (parseFloat(selectedFactor.valor.toString()) * parseFloat(criterio.puntaje_maximo.toString()));
                         }
                     }
@@ -82,7 +129,6 @@ export default function ResultsView({ proyecto, lotes, evaluaciones }: ResultsVi
         score: parseFloat(item.total.toFixed(1))
     }));
 
-    // Radar Data - Comparing all lots across classifications
     const radarData = template.clasificaciones.map((c: any) => {
         const item: any = { subject: c.nombre };
         rankingData.forEach(l => {
@@ -94,72 +140,55 @@ export default function ResultsView({ proyecto, lotes, evaluaciones }: ResultsVi
     const colors = ['#FF581A', '#3B4ED4', '#6366f1', '#10b981', '#f59e0b', '#06b6d4'];
 
     return (
-        <div className="flex-1 overflow-y-auto w-full">
-            <div className="p-8 max-w-6xl mx-auto space-y-8">
-                <div className="flex justify-between items-start">
+        <div className={s.root}>
+            <div className={s.container}>
+                <div className={s.titleRow}>
                     <div className="flex flex-col gap-2">
-                        <h2 className="text-3xl font-black tracking-tight text-foreground">Resultados de Comparación</h2>
-                        <p className="text-muted-foreground">Análisis detallado y ranking de lotes final.</p>
+                        <h2 className={s.title}>Resultados de Comparación</h2>
+                        <p className={s.subtitle}>Análisis detallado y ranking de lotes final.</p>
                     </div>
                     <ExportButton proyectoId={proyecto.id} projectName={proyecto.nombre} />
                 </div>
 
                 {/* Top 3 Podium */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className={s.podiumGrid}>
                     {rankingData.slice(0, 3).map((lote: any, index: number) => (
-                        <div key={lote.id} className={cn(
-                            "relative flex flex-col rounded-2xl overflow-hidden border bg-card transition-all duration-300 group hover:-translate-y-1 hover:shadow-xl",
-                            index === 0 ? "border-primary/50 shadow-lg shadow-primary/10 ring-1 ring-primary/20 scale-[1.02]" : "border-border shadow-md"
-                        )}>
-                            {/* Image Header with Ranking Badge */}
-                            <div className="relative h-40 w-full overflow-hidden bg-muted">
+                        <div key={lote.id} className={cn(s.podiumCard, index === 0 ? s.podiumWinner : s.podiumDefault)}>
+                            <div className={s.podiumImage}>
                                 {lote.imagen ? (
-                                    <img
-                                        src={lote.imagen}
-                                        alt={lote.nombre}
-                                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                    />
+                                    <img src={lote.imagen} alt={lote.nombre} className={s.podiumImg} />
                                 ) : (
-                                    <div className="flex h-full w-full items-center justify-center bg-secondary/30">
+                                    <div className={s.podiumPlaceholder}>
                                         <LayoutGrid className="h-10 w-10 text-muted-foreground/10" />
                                     </div>
                                 )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-90" />
+                                <div className={s.podiumGradient} />
 
                                 {index === 0 && (
                                     <div className="absolute top-3 right-3">
-                                        <div className="bg-primary text-primary-foreground p-2 rounded-full shadow-lg animate-in zoom-in spin-in-12 duration-500">
+                                        <div className={s.podiumTrophy}>
                                             <Trophy className="h-5 w-5" />
                                         </div>
                                     </div>
                                 )}
-
                             </div>
 
-                            <div className={cn(
-                                "relative -mt-5 mx-auto h-10 w-10 rounded-xl flex items-center justify-center font-black text-lg shadow-lg border-4 border-card z-10",
-                                index === 0 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                            )}>
+                            <div className={cn(s.podiumBadge, index === 0 ? s.podiumBadgeWin : s.podiumBadgeDef)}>
                                 {index + 1}
                             </div>
 
-                            {/* Card Content */}
-                            <div className="pt-2 pb-6 px-6 flex flex-col items-center flex-1">
-                                <h3 className="text-xl font-black tracking-tight text-center mb-1 line-clamp-1" title={lote.nombre}>
-                                    {lote.nombre}
-                                </h3>
+                            <div className={s.podiumContent}>
+                                <h3 className={s.podiumName} title={lote.nombre}>{lote.nombre}</h3>
                                 <div className="flex items-baseline gap-1 mb-6">
-                                    <span className="text-4xl font-black text-primary tracking-tighter">
-                                        {lote.total.toFixed(1)}
-                                    </span>
-                                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">pts</span>
+                                    <span className={s.podiumScore}>{lote.total.toFixed(1)}</span>
+                                    <span className={s.podiumPts}>pts</span>
                                 </div>
 
-                                <div className="w-full grid grid-cols-2 gap-x-4 gap-y-2 mt-auto">
+                                <div className={s.podiumBreakdown}>
                                     {template.clasificaciones.map((c: any) => (
-                                        <div key={c.id} className="flex justify-between items-center text-[10px] py-1 border-b border-border/40 last:border-0">
-                                            <span className="text-muted-foreground font-medium truncate pr-2">{c.nombre}</span>
-                                            <span className="font-bold text-foreground">{(lote[c.nombre] || 0).toFixed(1)}</span>
+                                        <div key={c.id} className={s.podiumBreakdownRow}>
+                                            <span className={s.podiumBreakdownLabel}>{c.nombre}</span>
+                                            <span className={s.podiumBreakdownValue}>{(lote[c.nombre] || 0).toFixed(1)}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -168,15 +197,15 @@ export default function ResultsView({ proyecto, lotes, evaluaciones }: ResultsVi
                     ))}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className={s.chartsGrid}>
                     {/* Bar Chart */}
-                    <Card className="shadow-sm">
+                    <Card className={s.chartCard}>
                         <CardHeader>
-                            <CardTitle className="text-lg">Puntaje Total por Lote</CardTitle>
+                            <CardTitle className={s.chartTitle}>Puntaje Total por Lote</CardTitle>
                             <CardDescription>Comparativa visual del rendimiento general.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="h-[300px] w-full">
+                            <div className={s.chartContainer}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
@@ -198,27 +227,20 @@ export default function ResultsView({ proyecto, lotes, evaluaciones }: ResultsVi
                     </Card>
 
                     {/* Radar Chart */}
-                    <Card className="shadow-sm">
+                    <Card className={s.chartCard}>
                         <CardHeader>
-                            <CardTitle className="text-lg">Perfil por Clasificación</CardTitle>
+                            <CardTitle className={s.chartTitle}>Perfil por Clasificación</CardTitle>
                             <CardDescription>Fortalezas y debilidades comparadas.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="h-[300px] w-full">
+                            <div className={s.chartContainer}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
                                         <PolarGrid opacity={0.3} />
                                         <PolarAngleAxis dataKey="subject" fontSize={10} />
                                         <PolarRadiusAxis fontSize={10} axisLine={false} tick={false} />
                                         {rankingData.slice(0, 4).map((lote: any, index: number) => (
-                                            <Radar
-                                                key={lote.id}
-                                                name={lote.nombre}
-                                                dataKey={lote.nombre}
-                                                stroke={colors[index]}
-                                                fill={colors[index]}
-                                                fillOpacity={0.1}
-                                            />
+                                            <Radar key={lote.id} name={lote.nombre} dataKey={lote.nombre} stroke={colors[index]} fill={colors[index]} fillOpacity={0.1} />
                                         ))}
                                         <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
                                         <Tooltip />
@@ -230,9 +252,9 @@ export default function ResultsView({ proyecto, lotes, evaluaciones }: ResultsVi
                 </div>
 
                 {/* Full Ranking Table */}
-                <Card className="shadow-sm overflow-hidden">
-                    <CardHeader className="bg-muted/10 border-b">
-                        <CardTitle className="text-lg">Ranking Detallado</CardTitle>
+                <Card className={s.rankingCard}>
+                    <CardHeader className={s.rankingHeader}>
+                        <CardTitle className={s.chartTitle}>Ranking Detallado</CardTitle>
                     </CardHeader>
                     <Table>
                         <TableHeader>
@@ -240,28 +262,24 @@ export default function ResultsView({ proyecto, lotes, evaluaciones }: ResultsVi
                                 <TableHead className="w-12 text-center">Pos</TableHead>
                                 <TableHead>Lote</TableHead>
                                 {template.clasificaciones.map((c: any) => (
-                                    <TableHead key={c.id} className="text-right text-[10px] uppercase font-bold tracking-tight">
-                                        {c.nombre}
-                                    </TableHead>
+                                    <TableHead key={c.id} className={s.rankingColHead}>{c.nombre}</TableHead>
                                 ))}
-                                <TableHead className="text-right font-black text-primary">TOTAL</TableHead>
+                                <TableHead className={s.rankingTotal}>TOTAL</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {rankingData.map((lote: any, index: number) => (
-                                <TableRow key={lote.id} className={cn(index === 0 && "bg-primary/5")}>
-                                    <TableCell className="text-center font-bold">
+                                <TableRow key={lote.id} className={cn(index === 0 && s.rankingWinRow)}>
+                                    <TableCell className={s.rankingPos}>
                                         {index === 0 ? <Medal className="h-4 w-4 text-primary inline" /> : index + 1}
                                     </TableCell>
-                                    <TableCell className="font-semibold">{lote.nombre}</TableCell>
+                                    <TableCell className={s.rankingName}>{lote.nombre}</TableCell>
                                     {template.clasificaciones.map((c: any) => (
-                                        <TableCell key={c.id} className="text-right text-xs">
+                                        <TableCell key={c.id} className={s.rankingScore}>
                                             {(lote[c.nombre] || 0).toFixed(1)}
                                         </TableCell>
                                     ))}
-                                    <TableCell className="text-right font-black text-lg text-primary">
-                                        {lote.total.toFixed(1)}
-                                    </TableCell>
+                                    <TableCell className={s.rankingTotalCell}>{lote.total.toFixed(1)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
