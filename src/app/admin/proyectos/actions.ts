@@ -55,7 +55,11 @@ export async function createLote(
     proyectoId: string,
     nombre: string,
     ubicacion: string,
-    descripcion: string
+    descripcion: string,
+    lat?: number,
+    lng?: number,
+    direccion_formateada?: string,
+    imagen?: string
 ) {
     const supabase = await createClient();
 
@@ -74,6 +78,10 @@ export async function createLote(
         nombre,
         ubicacion,
         descripcion,
+        lat,
+        lng,
+        direccion_formateada,
+        imagen,
         orden: nextOrder,
     });
 
@@ -86,12 +94,16 @@ export async function updateLote(
     nombre: string,
     ubicacion: string,
     descripcion: string,
-    proyectoId: string
+    proyectoId: string,
+    lat?: number,
+    lng?: number,
+    direccion_formateada?: string,
+    imagen?: string
 ) {
     const supabase = await createClient();
     const { error } = await supabase
         .from("lotes")
-        .update({ nombre, ubicacion, descripcion })
+        .update({ nombre, ubicacion, descripcion, lat, lng, direccion_formateada, imagen })
         .eq("id", id);
 
     if (error) return { error: error.message };

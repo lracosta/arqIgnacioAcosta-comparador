@@ -75,6 +75,12 @@ export default function LotEditorCliente({ proyectoId, initialLotes }: LotEditor
             return;
         }
 
+        const nombreNorm = nombre.trim().toLowerCase();
+        if (lotes.some(l => l.nombre.trim().toLowerCase() === nombreNorm)) {
+            toast.error("Ya existe un lote con ese nombre en este proyecto");
+            return;
+        }
+
         setIsLoading(true);
         try {
             await createLoteCliente(
@@ -100,6 +106,12 @@ export default function LotEditorCliente({ proyectoId, initialLotes }: LotEditor
     const handleUpdateLote = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!isEditing) return;
+
+        const nombreNorm = nombre.trim().toLowerCase();
+        if (lotes.some(l => l.id !== isEditing && l.nombre.trim().toLowerCase() === nombreNorm)) {
+            toast.error("Ya existe un lote con ese nombre en este proyecto");
+            return;
+        }
 
         setIsLoading(true);
         try {
