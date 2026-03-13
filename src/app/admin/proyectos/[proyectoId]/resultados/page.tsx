@@ -87,7 +87,6 @@ export default async function AdminResultadosPage({
                     lotes={lotes || []}
                     evaluaciones={evaluaciones || []}
                     readOnly={true}
-                    showManagement={false}
                 />
             </div>
         </div>
