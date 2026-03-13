@@ -45,9 +45,15 @@ export async function GET(request: NextRequest) {
             } else {
                 return NextResponse.redirect(`${origin}${next}`);
             }
+        } else {
+            console.error("Auth callback error:", error.message);
+            // Si hubo error con el código, lo mandamos al login
+            return NextResponse.redirect(`${origin}/login?message=Link inválido o expirado`);
         }
     }
 
-    // return the user to an error page with instructions
-    return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+    // Si no hay 'code', es posible que se esté usando Implicit Flow (#access_token=...).
+    // El servidor no puede leer el hash, pero los navegadores conservan el hash en las redirecciones.
+    // Redirigimos al destino directamente.
+    return NextResponse.redirect(`${origin}${next}`);
 }
