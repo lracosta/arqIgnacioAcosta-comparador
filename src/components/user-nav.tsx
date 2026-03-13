@@ -13,9 +13,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LogOut, User, Settings, ShieldCheck } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useState } from "react";
+import { UserProfileDialog } from "./user-profile-dialog";
 
 export function UserNav() {
     const { user, loading, signOut } = useAuth();
+
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     if (loading) {
         return <Skeleton className="h-8 w-8 rounded-full" />;
@@ -25,12 +29,20 @@ export function UserNav() {
 
     const initials = user.email?.substring(0, 2).toUpperCase() || "U";
     const name = user.user_metadata?.full_name || user.email?.split("@")[0];
+    const avatarUrl = user.user_metadata?.avatar_url;
 
     return (
-        <DropdownMenu>
+        <>
+            <UserProfileDialog 
+                open={isProfileOpen} 
+                onOpenChange={setIsProfileOpen} 
+                user={user} 
+            />
+            <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full border-2 border-primary/10 p-0 hover:bg-primary/5 transition-all">
                     <Avatar className="h-8 w-8">
+                        <AvatarImage src={avatarUrl} alt={name} />
                         <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                             {initials}
                         </AvatarFallback>
@@ -47,14 +59,16 @@ export function UserNav() {
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer gap-2 py-2">
+                <DropdownMenuItem className="cursor-pointer gap-2 py-2" onClick={() => setIsProfileOpen(true)}>
                     <User className="h-4 w-4" />
                     <span>Perfil</span>
                 </DropdownMenuItem>
+                {/* 
                 <DropdownMenuItem className="cursor-pointer gap-2 py-2">
                     <Settings className="h-4 w-4" />
                     <span>Ajustes</span>
                 </DropdownMenuItem>
+                */}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                     className="cursor-pointer gap-2 py-2 text-destructive focus:text-destructive focus:bg-destructive/5"
@@ -65,5 +79,6 @@ export function UserNav() {
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
+        </>
     );
 }

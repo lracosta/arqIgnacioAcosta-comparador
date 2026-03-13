@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
     Table,
     TableBody,
@@ -70,9 +71,12 @@ export default async function UsuariosPage() {
                                 <TableRow key={user.id} className="group hover:bg-primary/5 transition-colors">
                                     <TableCell className="py-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                                                {user.full_name?.charAt(0) || user.email.charAt(0).toUpperCase()}
-                                            </div>
+                                            <Avatar className="h-9 w-9 rounded-full border-2 border-primary/10 shadow-sm">
+                                                <AvatarImage src={user.avatar_url} alt={user.full_name} />
+                                                <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold uppercase">
+                                                    {user.full_name?.charAt(0) || user.email.charAt(0)}
+                                                </AvatarFallback>
+                                            </Avatar>
                                             <div>
                                                 <p className="font-semibold text-sm">{user.full_name || "Sin nombre"}</p>
                                                 <p className="text-[10px] text-muted-foreground uppercase font-medium">#{user.id.slice(0, 8)}</p>
