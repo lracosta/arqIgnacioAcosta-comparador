@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,6 +32,8 @@ interface NewProyectoDialogProps {
 }
 
 export default function NewProyectoDialog({ clientes, activeVersion }: NewProyectoDialogProps) {
+    const router = useRouter();
+
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -65,6 +68,7 @@ export default function NewProyectoDialog({ clientes, activeVersion }: NewProyec
                 setDescripcion("");
                 setClienteId("");
                 setIsOpen(false);
+                router.push(`/admin/proyectos/${result.data.id}`);
             }
         } catch (error) {
             toast.error("Error al crear el proyecto");
