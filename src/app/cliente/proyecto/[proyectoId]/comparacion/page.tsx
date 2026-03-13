@@ -68,19 +68,23 @@ export default async function ComparacionPage({
 
     // 3. Fetch Evaluations for these lotes
     const loteIds = lotes?.map(l => l.id) || [];
-    const { data: evaluaciones } = await supabase
-        .from("evaluaciones")
-        .select("*")
-        .in("lote_id", loteIds);
+    let evaluaciones = [];
+    if (loteIds.length > 0) {
+        const { data: evals } = await supabase
+            .from("evaluaciones")
+            .select("*")
+            .in("lote_id", loteIds);
+        evaluaciones = evals || [];
+    }
 
     return (
         <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden">
             <ComparisonInterface
                 proyecto={proyecto}
                 lotes={lotes || []}
-                evaluaciones={evaluaciones || []}
+                evaluaciones={evaluaciones}
+                readOnly={proyecto.estado === 'finalizado'}
                 initialTab={tab}
-                showManagement={tab === 'gestion'}
             />
         </div>
     );

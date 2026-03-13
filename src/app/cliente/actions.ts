@@ -44,7 +44,8 @@ export async function updateProyectoCliente(
 
     if (error) return { error: error.message };
     revalidatePath("/cliente/dashboard");
-    revalidatePath(`/cliente/comparacion/${id}`);
+    revalidatePath(`/cliente/proyecto/${id}/gestion`);
+    revalidatePath(`/cliente/proyecto/${id}/comparacion`);
 }
 
 export async function deleteProyectoCliente(id: string) {
@@ -111,7 +112,8 @@ export async function createLoteCliente(
     });
 
     if (error) return { error: error.message };
-    revalidatePath(`/cliente/comparacion/${proyectoId}`);
+    revalidatePath(`/cliente/proyecto/${proyectoId}/gestion`);
+    revalidatePath(`/cliente/proyecto/${proyectoId}/comparacion`);
 }
 
 export async function updateLoteCliente(
@@ -155,7 +157,8 @@ export async function updateLoteCliente(
         .eq("proyecto_id", proyectoId);
 
     if (error) return { error: error.message };
-    revalidatePath(`/cliente/comparacion/${proyectoId}`);
+    revalidatePath(`/cliente/proyecto/${proyectoId}/gestion`);
+    revalidatePath(`/cliente/proyecto/${proyectoId}/comparacion`);
 }
 
 export async function deleteLoteCliente(id: string, proyectoId: string) {
@@ -181,7 +184,8 @@ export async function deleteLoteCliente(id: string, proyectoId: string) {
         .eq("proyecto_id", proyectoId);
 
     if (error) return { error: error.message };
-    revalidatePath(`/cliente/comparacion/${proyectoId}`);
+    revalidatePath(`/cliente/proyecto/${proyectoId}/gestion`);
+    revalidatePath(`/cliente/proyecto/${proyectoId}/comparacion`);
 }
 
 export async function updateLoteOrderCliente(proyectoId: string, items: { id: string; orden: number }[]) {
@@ -205,5 +209,6 @@ export async function updateLoteOrderCliente(proyectoId: string, items: { id: st
             supabase.from("lotes").update({ orden: item.orden }).eq("id", item.id).eq("proyecto_id", proyectoId)
         )
     );
-    revalidatePath(`/cliente/comparacion/${proyectoId}`);
+    revalidatePath(`/cliente/proyecto/${proyectoId}/gestion`);
+    revalidatePath(`/cliente/proyecto/${proyectoId}/comparacion`);
 }

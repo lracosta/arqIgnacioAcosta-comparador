@@ -107,12 +107,12 @@ export default async function ClienteDashboard() {
 
                                 <div className="flex flex-col gap-2 pt-4 border-t border-border/40">
                                     <Button asChild size="sm" className="w-full h-10 shadow-sm font-bold">
-                                        <Link href={`/cliente/comparacion/${proyecto.id}`}>
+                                        <Link href={`/cliente/proyecto/${proyecto.id}/comparacion`}>
                                             <ArrowRight className="mr-2 h-4 w-4" /> Ir a Comparación
                                         </Link>
                                     </Button>
                                     <Button asChild variant="outline" size="sm" className="w-full h-10 border-primary/20 hover:bg-primary/5 hover:text-primary transition-colors text-xs">
-                                        <Link href={`/cliente/comparacion/${proyecto.id}?tab=gestion`}>
+                                        <Link href={`/cliente/proyecto/${proyecto.id}/gestion`}>
                                             Configurar Proyecto
                                         </Link>
                                     </Button>

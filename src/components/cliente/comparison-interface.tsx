@@ -33,15 +33,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { saveEvaluation, finalizarProyecto } from "@/app/cliente/comparacion/[proyectoId]/actions";
+import { saveEvaluation } from "@/app/cliente/proyecto/[proyectoId]/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import EvaluationCard from "./evaluation-card";
 import ResultsView from "./results-view";
 import ExportButton from "./export-button";
-import LotEditorCliente from "./lot-editor-cliente";
 import ComparisonTable from "./comparison-table";
-import ProjectEditorCliente from "./project-editor-cliente";
 
 // ── Styles ──────────────────────────────────────────────────────────────────────
 const s = {
@@ -104,7 +102,6 @@ interface ComparisonInterfaceProps {
     evaluaciones: any[];
     initialTab?: string;
     readOnly?: boolean;
-    showManagement?: boolean;
 }
 
 export default function ComparisonInterface({
@@ -112,38 +109,19 @@ export default function ComparisonInterface({
     lotes,
     evaluaciones: initialEvaluaciones,
     initialTab = "evaluacion",
-    readOnly = false,
-    showManagement = true
+    readOnly = false
 }: ComparisonInterfaceProps) {
     const router = useRouter();
     const [selectedLoteId, setSelectedLoteId] = useState(lotes[0]?.id);
     const [evaluaciones, setEvaluaciones] = useState(initialEvaluaciones);
-    const [activeTab, setActiveTab] = useState(initialTab);
+    const [activeTab, setActiveTab] = useState(initialTab === "resultados" ? "resultados" : "evaluacion");
     const [isSaving, setIsSaving] = useState(false);
-    const [isFinalizing, setIsFinalizing] = useState(false);
 
     useEffect(() => {
         setEvaluaciones(initialEvaluaciones);
     }, [initialEvaluaciones]);
 
     const template = (proyecto.version as any);
-
-    const handleFinalizar = async () => {
-        setIsFinalizing(true);
-        try {
-            const result = await finalizarProyecto(proyecto.id);
-            if (result.success) {
-                toast.success("Proyecto finalizado y guardado correctamente");
-                router.push("/cliente/dashboard");
-            } else {
-                toast.error(result.error || "Error al finalizar el proyecto");
-            }
-        } catch (error) {
-            toast.error("Error al finalizar el proyecto");
-        } finally {
-            setIsFinalizing(false);
-        }
-    };
 
     const handleSelectFactor = async (loteId: string, factorId: string) => {
         let targetCriterioId: string | null = null;
@@ -224,7 +202,6 @@ export default function ComparisonInterface({
                 </div>
 
                 <div className={s.navBar}>
-                    {!showManagement && (
                         <>
                             <button
                                 onClick={() => setActiveTab("evaluacion")}
@@ -239,15 +216,6 @@ export default function ComparisonInterface({
                                 <BarChart3 className="h-3.5 w-3.5" /> Resultados
                             </button>
                         </>
-                    )}
-                    {showManagement && (
-                        <button
-                            onClick={() => setActiveTab("gestion")}
-                            className={cn(s.navBtn, activeTab === "gestion" ? s.navBtnActive : s.navBtnInactive)}
-                        >
-                            <LayoutDashboard className="h-3.5 w-3.5" /> Lotes
-                        </button>
-                    )}
 
                     <Button variant="ghost" size="sm" asChild className={s.exitBtn}>
                         <Link href="/cliente/dashboard">Salir</Link>
@@ -275,110 +243,8 @@ export default function ComparisonInterface({
                         </div>
                     </div>
                 )}
-
                 {activeTab === "resultados" && (
                     <ResultsView proyecto={proyecto} lotes={lotes} evaluaciones={evaluaciones} />
-                )}
-
-                {activeTab === "gestion" && (
-                    <div className={s.mgmtSection}>
-                        <div className={s.mgmtContainer}>
-                            <Card className={s.mgmtCard}>
-                                <CardHeader className={s.mgmtCardHeader}>
-                                    <div className="flex items-center gap-3">
-                                        <div className={s.mgmtIconBlue}>
-                                            <Edit className="h-5 w-5" />
-                                        </div>
-                                        <div>
-                                            <CardTitle className={s.mgmtTitle}>Datos del Proyecto</CardTitle>
-                                            <CardDescription>Modifique la información general del proyecto.</CardDescription>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="pt-8 px-8">
-                                    <ProjectEditorCliente proyecto={proyecto} />
-                                </CardContent>
-                            </Card>
-
-                            <Card className={s.mgmtCard}>
-                                <CardHeader className={s.mgmtCardHeader}>
-                                    <div className="flex items-center gap-3">
-                                        <div className={s.mgmtIconPrimary}>
-                                            <Layers className="h-5 w-5" />
-                                        </div>
-                                        <div>
-                                            <CardTitle className={s.mgmtTitle}>Gestión de Lotes</CardTitle>
-                                            <CardDescription>Agregue, edite o elimine los lotes que desea comparar en este proyecto.</CardDescription>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="pt-8 px-8">
-                                    <LotEditorCliente proyectoId={proyecto.id} initialLotes={lotes || []} />
-                                </CardContent>
-                            </Card>
-
-                            <Card className={s.finCard}>
-                                <CardHeader className={s.finHeader}>
-                                    <h3 className={s.finHeaderTitle}>
-                                        <AlertCircle className="h-4 w-4" /> Zona de Finalización
-                                    </h3>
-                                </CardHeader>
-                                <CardContent className={s.finContent}>
-                                    <div className={s.finLayout}>
-                                        <div className="flex-1 space-y-4">
-                                            <div className="space-y-1">
-                                                <h4 className={s.finTitle}>¿Listo para concluir?</h4>
-                                                <p className={s.finDescription}>
-                                                    Al finalizar, el proyecto se guardará de forma definitiva y pasará a un estado de lectura.
-                                                    El administrador será notificado para comenzar el análisis de sus resultados.
-                                                </p>
-                                            </div>
-                                            <div className={s.finInfoGrid}>
-                                                <div className={s.finInfoBox}>
-                                                    <span className={s.finInfoLabel}>Proyecto</span>
-                                                    <p className={s.finInfoValue}>{proyecto.nombre}</p>
-                                                </div>
-                                                <div className={s.finInfoBox}>
-                                                    <span className={s.finInfoLabel}>Estado Actual</span>
-                                                    <Badge className={s.finStatusBadge}>{proyecto.estado}</Badge>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="shrink-0 w-full md:w-auto">
-                                            {!readOnly && (
-                                                proyecto.estado === 'finalizado' ? (
-                                                    <Badge className={s.finDoneBadge}>PROYECTO FINALIZADO</Badge>
-                                                ) : (
-                                                    <AlertDialog>
-                                                        <AlertDialogTrigger asChild>
-                                                            <Button disabled={isFinalizing} size="lg" className={s.finBtn}>
-                                                                {isFinalizing ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <CheckCircle2 className="h-5 w-5 mr-2" />}
-                                                                Finalizar Ahora
-                                                            </Button>
-                                                        </AlertDialogTrigger>
-                                                        <AlertDialogContent>
-                                                            <AlertDialogHeader>
-                                                                <AlertDialogTitle>¿Está seguro de finalizar el proyecto?</AlertDialogTitle>
-                                                                <AlertDialogDescription>
-                                                                    Esta acción guardará el estado actual de forma permanente y notificará al administrador. Una vez finalizado, no podrá realizar más cambios.
-                                                                </AlertDialogDescription>
-                                                            </AlertDialogHeader>
-                                                            <AlertDialogFooter>
-                                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                                <AlertDialogAction onClick={handleFinalizar} className={s.finConfirmBtn}>
-                                                                    Confirmar Finalización
-                                                                </AlertDialogAction>
-                                                            </AlertDialogFooter>
-                                                        </AlertDialogContent>
-                                                    </AlertDialog>
-                                                )
-                                            )}
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </div>
                 )}
             </main>
         </div>

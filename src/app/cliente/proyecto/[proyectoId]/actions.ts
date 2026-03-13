@@ -31,7 +31,7 @@ export async function saveEvaluation(
 
     if (error) return { error: error.message };
 
-    revalidatePath(`/cliente/comparacion/${projectId}`);
+    revalidatePath(`/cliente/proyecto/${projectId}/comparacion`);
     return { success: true };
 }
 
@@ -53,7 +53,7 @@ export async function finalizarProyecto(projectId: string) {
     if (error) return { error: error.message };
 
     revalidatePath("/cliente/dashboard");
-    revalidatePath(`/cliente/comparacion/${projectId}`);
+    revalidatePath(`/cliente/proyecto/${projectId}/gestion`);
     revalidatePath(`/admin/proyectos`);
 
     return { success: true };

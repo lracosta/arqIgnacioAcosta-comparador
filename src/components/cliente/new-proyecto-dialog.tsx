@@ -55,7 +55,7 @@ export default function NewProyectoDialog({ activeVersion }: NewProyectoDialogPr
                 setIsOpen(false);
                 router.refresh();
                 if (result.data) {
-                    router.push(`/cliente/comparacion/${result.data.id}`);
+                    router.push(`/cliente/proyecto/${result.data.id}/gestion`);
                 }
             }
         } catch (error) {
